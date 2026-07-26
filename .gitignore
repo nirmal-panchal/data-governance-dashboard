@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+frontend/dist/
+backend/dist/
+
+# Prisma generated client
+backend/src/generated/
+backend/generated/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Uploads (transient)
+backend/uploads/
