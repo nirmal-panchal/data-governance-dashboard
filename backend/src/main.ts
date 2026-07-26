@@ -15,9 +15,7 @@ async function bootstrap() {
   app.enableCors({ origin: origins.includes('*') ? true : origins });
 
   // Validate + strip request payloads based on DTO decorators.
-  app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, transform: true }),
-  );
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
