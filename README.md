@@ -143,25 +143,91 @@ Included in [`sample-data/`](./sample-data):
 
 ---
 
-## Assumptions & design decisions / trade-offs
+## Design decisions & why
 
-- **No auth / multi-user** — out of scope per the brief; the app is single-tenant.
-- **Raw rows aren't persisted** — only column *profiles* and a ~10-row preview
-  are stored. Consequence: a manual tag override recomputes trust via
-  classification coverage but does **not** re-derive per-column invalid counts
-  (that would need the original values). This keeps storage light and uploads fast.
-- **Classification is intentionally simple** (name hints + value patterns, Luhn
-  for cards), as the brief asks. Name signals take precedence over value shape
-  since headers are less ambiguous (e.g. a `signup_date` column of `2023-01-15`
-  values would otherwise look phone-like).
-- **Type inference is dominant-type with a threshold**, so a mostly-numeric
-  column with a few bad cells is typed numeric and the bad cells count as invalid
-  — which is what "obviously invalid values" should mean.
-- **Value scoring is view-driven.** With no real analytics to hook into, opening
-  a dataset logs a `UsageEvent`; the score blends view volume and recency.
-- **Prisma 7** requires a driver adapter (the connection URL is no longer read
-  from the schema), so the client is constructed with the `pg` adapter in
-  `PrismaService`.
+Each choice below is framed as **decision → why → trade-off**.
+
+### Architecture & stack
+
+- **NestJS instead of plain Express.** The ingestion pipeline is naturally a set
+  of focused steps (parse → profile → classify → score), so NestJS's dependency
+  injection and modules let each step be its own injectable, single-responsibility
+  service that's unit-testable in isolation. *Trade-off:* more boilerplate/framework
+  overhead than Express — justified here because the separation of concerns is the
+  point of the exercise.
+- **The scoring & classification logic are pure functions/services** (no DB, no
+  HTTP). *Why:* they hold the "real" business logic, so keeping them side-effect-free
+  makes them trivial to test and reason about. *Trade-off:* the orchestrating
+  `DatasetsService` has to wire inputs/outputs between them, which is deliberate.
+- **Process the whole pipeline synchronously on upload** rather than using a job
+  queue. *Why:* datasets are small (10 MB cap) and the user wants scores
+  *immediately* on the dashboard — a queue would add infrastructure and a
+  "pending" state for no real benefit at this scale. *Trade-off:* a very large
+  file would block the request; the size limit bounds that, and a queue is the
+  obvious next step if inputs grew.
+- **Store column *profiles*, not raw rows** (plus a ~10-row preview for the UI).
+  *Why:* the catalog only needs aggregates (types, missing/invalid/distinct,
+  scores), so persisting every cell would bloat the DB for no product value.
+  *Trade-off:* a manual tag override recomputes trust via classification coverage
+  but can't re-derive per-column *invalid* counts (those need the original values)
+  — an accepted limitation, called out because it's a real consequence.
+- **Prisma 7 with the `pg` driver adapter.** Prisma 7 no longer reads the
+  connection URL from the schema, so `PrismaService` constructs the client with an
+  explicit `@prisma/adapter-pg` adapter. *Why note it:* it's the least obvious part
+  of the setup and would trip up anyone on an older Prisma mental model.
+
+### Domain logic (the interesting part)
+
+- **Classification = column-name hints first, value patterns second, with a
+  match threshold.** *Why:* a human-authored header (`email`, `phone`) is a
+  stronger, less ambiguous signal than value shape. Concretely, `signup_date`
+  values like `2023-01-15` satisfy a loose phone-number pattern, so a value-first
+  approach mislabels dates as phones (there's a regression test locking this
+  behavior in). Credit cards additionally require a **Luhn** check so random
+  16-digit IDs aren't flagged. *Trade-off:* simple substring/regex matching will
+  miss exotic formats — acceptable, and exactly the "simple pattern matching" the
+  brief asks for.
+- **Type inference is dominant-type with a 60% threshold**, not all-or-nothing.
+  *Why:* real columns are messy — a mostly-integer column with a couple of bad
+  cells should still be typed `INTEGER`, with the bad cells counted as *invalid*.
+  That's precisely what "obviously invalid values" should mean, and it makes the
+  quality score reflect reality instead of collapsing to `STRING`.
+- **Trust ≠ Value, kept deliberately separate** (the brief stresses these get
+  confused). **Trust** blends the five reliability factors — quality,
+  completeness, accuracy, consistency, and *classification coverage* — so a
+  well-understood, well-classified dataset scores higher. Crucially, a **manual
+  override counts toward coverage**, so human review *raises* trust, which models
+  governance correctly. **Value** is purely usage: a saturating `log` of view
+  count plus access recency, so a dataset nobody opens trends to 0 and is flagged
+  for archival. *Trade-off:* the specific weightings are a judgment call — they're
+  centralized as named constants in `scoring.service.ts` so they're easy to tune.
+- **A view is recorded when a dataset detail is opened.** *Why:* with no external
+  analytics to hook into, opening the detail page is the most honest proxy for
+  "this data is being used," and it's what makes the Value score move over time.
+
+### Data handling & edge cases
+
+- **Never crash on messy input; degrade gracefully.** Blank headers become
+  `column_N`, duplicate headers get suffixed (`email`, `email_2`), ragged rows are
+  padded/truncated to the header width, fully-empty rows are dropped, and empty or
+  unsupported files return a clear `400`. *Why:* "data handling & edge cases" is an
+  explicit grading criterion, and a governance tool that chokes on a bad CSV is
+  useless. Each of these is covered by a test.
+
+### Frontend
+
+- **Tailwind + a small set of presentational components.** *Why:* the dashboard's
+  job is to *communicate* governance at a glance, so scores are color-coded
+  (green/amber/red), sensitivity tags are distinct colored chips, and bad
+  missing/invalid percentages turn red. Tailwind makes that fast without a design
+  system. *Trade-off:* utility classes are verbose in JSX — fine for an app this size.
+
+## Assumptions
+
+- **No authentication / multi-user** — explicitly out of scope; single-tenant.
+- **Uploads are ≤ 10 MB** and processed in-memory (no file persistence).
+- **"Usage" means dashboard views** in the absence of a real consumption signal.
+- **First matching signal wins** in classification (a column gets one tag).
 
 ---
 
