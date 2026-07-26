@@ -1,0 +1,13 @@
+customer_id,full_name,email,phone,date_of_birth,country,signup_date,account_balance
+1001,Alice Johnson,alice.johnson@example.com,+1-202-555-0143,1988-04-12,USA,2023-01-15,1523.40
+1002,Bruno Weber,bruno.weber@example.de,+49-30-5550-199,1991-11-03,Germany,2023-02-20,842.10
+1003,Carla Mendes,carla.mendes@example.br,+55-11-95555-0100,1985-07-22,Brazil,2023-03-01,2310.00
+1004,David Okonkwo,david.okonkwo@example.ng,+234-802-555-0188,1979-02-09,Nigeria,2023-03-18,175.75
+1005,Emma Larsson,emma.larsson@example.se,+46-8-5550-0177,1995-09-30,Sweden,2023-04-10,998.20
+1006,Farah Haddad,farah.haddad@example.ae,+971-4-555-0166,1990-12-14,UAE,2023-05-05,4021.55
+1007,Grace Kim,grace.kim@example.kr,+82-2-5550-0155,1983-06-18,South Korea,2023-06-11,657.30
+1008,Hiroshi Tanaka,hiroshi.tanaka@example.jp,+81-3-5550-0144,1987-03-25,Japan,2023-07-19,1289.90
+1009,Isabella Rossi,isabella.rossi@example.it,+39-06-5550-0133,1992-08-08,Italy,2023-08-02,733.45
+1010,James Smith,james.smith@example.co.uk,+44-20-5550-0122,1980-01-30,UK,2023-09-14,1845.00
+1011,Kavya Nair,kavya.nair@example.in,+91-22-5550-0111,1994-05-17,India,2023-10-21,512.65
+1012,Liam Murphy,liam.murphy@example.ie,+353-1-5550-0100,1986-10-05,Ireland,2023-11-30,2678.80
