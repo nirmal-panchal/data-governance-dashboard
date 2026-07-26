@@ -1,0 +1,18 @@
+# Render Blueprint for the backend API.
+# In Render: New → Blueprint → point at this repo. Set DATABASE_URL and
+# FRONTEND_ORIGIN in the service's Environment tab (marked sync:false below).
+services:
+  - type: web
+    name: dgd-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    # postinstall runs `prisma generate`; migrate deploy applies the schema.
+    buildCommand: npm install && npm run db:deploy && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_ORIGIN
+        sync: false
