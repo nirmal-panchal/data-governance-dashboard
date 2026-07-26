@@ -1,0 +1,100 @@
+// Data Governance Dashboard — data model
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  runtime      = "nodejs"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// A sensitive-data category assigned to a column, either automatically
+/// (by ClassificationService) or manually (user override).
+enum SensitivityTag {
+  EMAIL
+  PHONE
+  NAME
+  ID
+  CREDIT_CARD
+  ADDRESS
+  DATE
+  NONE
+}
+
+/// Inferred logical type of a column's values.
+enum ColumnType {
+  INTEGER
+  FLOAT
+  BOOLEAN
+  DATE
+  STRING
+}
+
+/// An uploaded dataset and its computed governance scores.
+model Dataset {
+  id                String   @id @default(cuid())
+  filename          String // stored/normalized name
+  originalName      String // original uploaded filename
+  fileType          String // "csv" | "xlsx"
+  uploadedAt        DateTime @default(now())
+  rowCount          Int
+  columnCount       Int
+  duplicateRowCount Int      @default(0)
+
+  // Governance scores (0-100)
+  qualityScore Float @default(0)
+  trustScore   Float @default(0)
+  valueScore   Float @default(0)
+
+  // Usage / value tracking
+  viewCount      Int       @default(0)
+  lastAccessedAt DateTime?
+
+  // First ~10 parsed rows, kept for a preview on the detail page
+  sampleRows Json?
+
+  columns     Column[]
+  usageEvents UsageEvent[]
+
+  @@index([uploadedAt])
+}
+
+/// A single column discovered within a dataset, with its profile + classification.
+model Column {
+  id           String     @id @default(cuid())
+  dataset      Dataset    @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  datasetId    String
+  name         String
+  orderIndex   Int
+  inferredType ColumnType @default(STRING)
+
+  // Quality profile
+  missingCount  Int   @default(0)
+  missingPct    Float @default(0)
+  distinctCount Int   @default(0)
+  invalidCount  Int   @default(0)
+  invalidPct    Float @default(0)
+
+  // Classification
+  autoTag       SensitivityTag  @default(NONE)
+  manualTag     SensitivityTag?
+  tagOverridden Boolean         @default(false)
+
+  @@index([datasetId])
+}
+
+/// A usage event (currently just dataset views) — powers Value scoring over time.
+model UsageEvent {
+  id        String   @id @default(cuid())
+  dataset   Dataset  @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  datasetId String
+  type      String   @default("VIEW")
+  createdAt DateTime @default(now())
+
+  @@index([datasetId])
+  @@index([createdAt])
+}
