@@ -8,7 +8,10 @@ dashboard with click-through to column-level detail.
 
 > Built for the Proteccio Full Stack Developer assignment.
 
-**Live demo:** _<add frontend URL after deploy>_ · **API:** _<add backend URL after deploy>_
+**Live demo:** https://data-governance-dashboard-chi.vercel.app · **API:** https://data-governance-dashboard-39zo.onrender.com/api
+
+> ⏳ The backend runs on Render's free tier and **sleeps after ~15 min idle** — the
+> first request may take ~20–30s to wake. Just retry and it'll be responsive.
 
 ---
 

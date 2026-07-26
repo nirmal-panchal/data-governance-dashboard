@@ -1,0 +1,15 @@
+ employee_id,full_name,work_email,mobile_phone,department,salary,hire_date,credit_card,home_address,ssn
+  E-1001,Aisha Rahman,aisha.rahman@corp.com,+1-415-555-0132,Engineering,142000,2021-03-15,4111111111111111,742 Evergreen
+  Terrace,536-22-1094
+  E-1002,Marcus Lee,marcus.lee@corp.com,+1-415-555-0148,Engineering,138500,2021-06-01,4012888888881881,88 Market St,412-55-7788
+  E-1003,Priya Nair,priya.nair@corp.com,+1-628-555-0170,Design,119000,2022-01-10,5555555555554444,19 Ocean Ave,,
+  E-1004,Tom Becker,not-an-email,+1-628-555-0166,Sales,,2022-02-22,5105105105105100,,601-99-2211
+  E-1005,Sofia García,sofia.garcia@corp.com,+1-212-555-0155,Marketing,98000,2022-04-05,378282246310005,300 Park Ave,733-11-8420
+  E-1006,David Okonkwo,david.o@corp.com,,Sales,105000,2022-07-18,4111111111111111,45 Broad St,290-44-6655
+  E-1007,Yuki Tanaka,yuki.tanaka@corp.com,+81-3-5555-0144,Engineering,150000,notadate,4012888888881881,2-1 Shibuya,,
+  E-1008,Emma Wilson,emma.wilson@corp.com,+44-20-5555-0122,Design,,2023-01-30,5555555555554444,12 Baker St,118-33-9900
+  E-1009,Carlos Mendes,carlos.mendes@corp.com,+55-11-95555-0100,Marketing,87000,2023-03-11,5105105105105100,77 Paulista Ave,455-66-1230
+  E-1010,Fatima Haddad,fatima.h@corp.com,+971-4-555-0166,Sales,112000,2023-05-20,378282246310005,9 Sheikh Zayed Rd,902-12-3456
+  E-1010,Fatima Haddad,fatima.h@corp.com,+971-4-555-0166,Sales,112000,2023-05-20,378282246310005,9 Sheikh Zayed Rd,902-12-3456
+  E-1011,Liam Murphy,liam.murphy@corp.com,+353-1-555-0100,Engineering,133000,2023-08-14,invalidcard123,3 Grafton St,677-88-4521
+  E-1012,Grace Kim,grace.kim@corp.com,+82-2-555-0155,Design,121000,2023-10-02,4111111111111111,55 Gangnam-daero,301-55-7789
